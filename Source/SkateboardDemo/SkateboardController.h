@@ -22,6 +22,9 @@ protected:
 	virtual void SetupInputComponent() override;
 
 private:
+	UPROPERTY()
+	class ASkateboardCharacter* SkateboardCharacter = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* SkatingContext = nullptr;
 
@@ -31,7 +34,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction = nullptr;
 
-	void Move(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* PushAction = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* BreakAction = nullptr;
+
+	void Move(const FInputActionValue& Value);
 	void Jump();
+	void Push();
+	void StartBreaking();
+	void Break();
+	void StopBreaking();
 };

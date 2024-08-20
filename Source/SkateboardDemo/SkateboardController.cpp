@@ -1,6 +1,7 @@
 #include "SkateboardController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "SkateboardCharacter.h"
 
 ASkateboardController::ASkateboardController()
 {
@@ -16,6 +17,8 @@ void ASkateboardController::Tick(float DeltaTime)
 void ASkateboardController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SkateboardCharacter = Cast<ASkateboardCharacter>(GetCharacter());
 
 	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
 	{
@@ -35,20 +38,62 @@ void ASkateboardController::SetupInputComponent()
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateboardController::Move);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASkateboardController::Jump);
+		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Triggered, this, &ASkateboardController::Push);
+		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Started, this, &ASkateboardController::StartBreaking);
+		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Triggered, this, &ASkateboardController::Break);
+		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Completed, this, &ASkateboardController::StopBreaking);
 	}
 }
 
 void ASkateboardController::Move(const FInputActionValue& Value)
 {
-	if (ACharacter* PlayerCharacter = GetCharacter())
+	if (!SkateboardCharacter)
 	{
-		const FVector2D InputMovement = Value.Get<FVector2D>();
-
-		UE_LOG(LogTemp, Warning, TEXT("Movement action: (%f, %f)"), InputMovement.X, InputMovement.Y);
+		return;
 	}
+
+	FVector2D InputMovement = Value.Get<FVector2D>();
+	InputMovement.Y = FMath::Max(InputMovement.Y, 0.f);
+	InputMovement.Normalize();
+	SkateboardCharacter->SteerSkateboard(InputMovement);
 }
 
 void ASkateboardController::Jump()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Jump pressed"));
+	if (SkateboardCharacter)
+	{
+		SkateboardCharacter->Jump();
+	}
+}
+
+void ASkateboardController::Push()
+{
+	if (SkateboardCharacter)
+	{
+		SkateboardCharacter->PushSkateboard();
+	}
+}
+
+void ASkateboardController::StartBreaking()
+{
+	if (SkateboardCharacter)
+	{
+		SkateboardCharacter->StartBreaking();
+	}
+}
+
+void ASkateboardController::Break()
+{
+	if (SkateboardCharacter)
+	{
+		SkateboardCharacter->Break();
+	}
+}
+
+void ASkateboardController::StopBreaking()
+{
+	if (SkateboardCharacter)
+	{
+		SkateboardCharacter->StopBreaking();
+	}
 }

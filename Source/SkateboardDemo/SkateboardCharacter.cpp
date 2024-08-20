@@ -1,6 +1,7 @@
 #include "SkateboardCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ASkateboardCharacter::ASkateboardCharacter()
 {
@@ -43,6 +44,43 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
+{
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime);
+}
+
+void ASkateboardCharacter::Jump()
+{
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		MovementComponent->AddImpulse(GetActorForwardVector() * JumpImpulse);
+	}
+}
+
+void ASkateboardCharacter::PushSkateboard()
+{
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		MovementComponent->AddImpulse(GetActorForwardVector() * PushImpulse);
+	}
+}
+
+void ASkateboardCharacter::StartBreaking()
+{
+
+}
+
+void ASkateboardCharacter::Break()
+{
+
+}
+
+void ASkateboardCharacter::StopBreaking()
+{
 
 }
 
