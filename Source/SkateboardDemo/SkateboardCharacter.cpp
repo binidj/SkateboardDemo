@@ -34,6 +34,7 @@ void ASkateboardCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	MovementComponent = GetCharacterMovement();
 }
 
 void ASkateboardCharacter::Tick(float DeltaTime)
@@ -68,25 +69,29 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 
 void ASkateboardCharacter::SkateJump()
 {
+	if (bIsPushing)
+	{
+		return;
+	}
+
 	Super::Jump();
 }
 
 void ASkateboardCharacter::PushSkateboard()
 {
-	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	if (!CanPush())
 	{
-		if (!MovementComponent->IsMovingOnGround())
-		{
-			return;
-		}
-		
-		MovementComponent->AddInputVector(GetActorForwardVector() * PushAccelerationScale);
+		return;
 	}
+
+	bIsPushing = true;
+	bIsPushRecharged = false;
+	GetWorldTimerManager().SetTimer(PushRechargeHandle, this, &ASkateboardCharacter::RechargePush, PushRechargeSeconds);
 }
 
 void ASkateboardCharacter::StartBraking()
 {
-	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	if (MovementComponent)
 	{
 		PreviousBrakeFriction = MovementComponent->BrakingDecelerationWalking;
 		MovementComponent->BrakingDecelerationWalking = BrakeFriction;
@@ -100,15 +105,38 @@ void ASkateboardCharacter::Brake()
 
 void ASkateboardCharacter::StopBraking()
 {
-	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	if (MovementComponent)
 	{
 		MovementComponent->BrakingDecelerationWalking = PreviousBrakeFriction;
 	}
 }
 
+bool ASkateboardCharacter::IsSkateJumping() const
+{
+	return MovementComponent && MovementComponent->IsFalling();
+}
+
+void ASkateboardCharacter::AddPushForce() const
+{
+	if (MovementComponent)
+	{
+		if (!MovementComponent->IsMovingOnGround())
+		{
+			return;
+		}
+
+		MovementComponent->AddInputVector(GetActorForwardVector() * PushAccelerationScale);
+	}
+}
+
+void ASkateboardCharacter::StopPushing()
+{
+	bIsPushing = false;
+}
+
 void ASkateboardCharacter::FixVelocityDirection()
 {
-	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	if (MovementComponent)
 	{
 		if (MovementComponent->Velocity.IsNearlyZero())
 		{
@@ -154,8 +182,6 @@ void ASkateboardCharacter::AlignSkate()
 
 	FRotator SkateRotation(ForwardDirectionRotation.Pitch, ForwardDirectionRotation.Yaw, RightDirectionRotation.Pitch);
 
-	// FRotator SkateRotation = ForwardDirectionRotation;
-
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 
 	SkateRotation = UKismetMathLibrary::RInterpTo(SkateboardMesh->GetComponentRotation(), SkateRotation, DeltaTime, SkateAlignSpeed);
@@ -184,14 +210,22 @@ FVector ASkateboardCharacter::WheelTrace(const FVector& WheelLocation)
 	return WheelLocation;
 }
 
+bool ASkateboardCharacter::CanPush() const
+{
+	return !bIsPushing && bIsPushRecharged && !IsSkateJumping();
+}
+
+void ASkateboardCharacter::RechargePush()
+{
+	bIsPushRecharged = true;
+}
+
 void ASkateboardCharacter::AddSkateMomentum()
 {
-	if (!SkateboardMesh)
+	if (!SkateboardMesh || !MovementComponent)
 	{
 		return;
 	}
-
-	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
 
 	if (!MovementComponent->IsMovingOnGround())
 	{
