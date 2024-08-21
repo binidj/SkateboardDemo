@@ -2,6 +2,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ASkateboardCharacter::ASkateboardCharacter()
 {
@@ -39,6 +40,8 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	AlignSkate();
+	// AddSkateMomentum();
 }
 
 void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -76,8 +79,8 @@ void ASkateboardCharacter::PushSkateboard()
 		{
 			return;
 		}
-
-		MovementComponent->AddInputVector(GetActorForwardVector() * PushAcceleration);
+		
+		MovementComponent->AddInputVector(GetActorForwardVector() * PushAccelerationScale);
 	}
 }
 
@@ -129,3 +132,82 @@ void ASkateboardCharacter::FixVelocityDirection()
 	}
 }
 
+void ASkateboardCharacter::AlignSkate()
+{
+	if (!SkateboardMesh)
+	{
+		return;
+	}
+
+	const FVector FrontWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("FrontWheel"));
+	const FVector BackWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("BackWheel"));
+	const FVector RightFrontWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("RightFrontWheel"));
+	const FVector LeftFrontWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("LeftFrontWheel"));
+
+	const FVector FrontHit = WheelTrace(FrontWheelLocation);
+	const FVector BackHit = WheelTrace(BackWheelLocation);
+	const FVector RightFrontHit = WheelTrace(RightFrontWheelLocation);
+	const FVector LeftFrontHit = WheelTrace(LeftFrontWheelLocation);
+
+	const FRotator ForwardDirectionRotation = UKismetMathLibrary::FindLookAtRotation(BackHit, FrontHit);
+	const FRotator RightDirectionRotation = UKismetMathLibrary::FindLookAtRotation(RightFrontHit, LeftFrontHit);
+
+	FRotator SkateRotation(ForwardDirectionRotation.Pitch, ForwardDirectionRotation.Yaw, RightDirectionRotation.Pitch);
+
+	// FRotator SkateRotation = ForwardDirectionRotation;
+
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+
+	SkateRotation = UKismetMathLibrary::RInterpTo(SkateboardMesh->GetComponentRotation(), SkateRotation, DeltaTime, SkateAlignSpeed);
+
+	SkateboardMesh->SetWorldRotation(SkateRotation);
+}
+
+FVector ASkateboardCharacter::WheelTrace(const FVector& WheelLocation)
+{
+	const FVector RayOffset(0.f, 0.f, 25.f);
+
+	FHitResult HitResult;
+
+	bool bHasHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		WheelLocation + RayOffset,
+		WheelLocation - RayOffset,
+		ECC_Visibility
+	);
+
+	if (bHasHit)
+	{
+		return HitResult.Location;
+	}
+
+	return WheelLocation;
+}
+
+void ASkateboardCharacter::AddSkateMomentum()
+{
+	if (!SkateboardMesh)
+	{
+		return;
+	}
+
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+
+	if (!MovementComponent->IsMovingOnGround())
+	{
+		return;
+	}
+
+	const FVector SkateDirection = SkateboardMesh->GetForwardVector();
+
+	// TODO: Improve this
+
+	if (SkateDirection.Z < 0.f)
+	{
+		MovementComponent->AddInputVector(SkateDirection * MomentumAccelerationScale);
+	}
+	else
+	{
+		MovementComponent->AddInputVector(SkateDirection * MomentumAccelerationScale * -1.f);
+	}
+}

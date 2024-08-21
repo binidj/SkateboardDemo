@@ -30,7 +30,7 @@ private:
 	float TurnSpeed = 5.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
-	float PushAcceleration = 5.f;
+	float PushAccelerationScale = 5.f;
 
 	float PreviousTurnDirection = 0.f;
 
@@ -39,7 +39,17 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
 	float BrakeFriction = 5.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float SkateAlignSpeed = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float MomentumAccelerationScale = 1.f;
+
 	void FixVelocityDirection();
+	void AlignSkate();
+	void AddSkateMomentum();
+	FVector WheelTrace(const FVector& WheelLocation);
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
