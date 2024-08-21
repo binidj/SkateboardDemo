@@ -30,20 +30,25 @@ private:
 	float TurnSpeed = 5.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
-	float PushImpulse = 5.f;
+	float PushAcceleration = 5.f;
+
+	float PreviousTurnDirection = 0.f;
+
+	float PreviousBrakeFriction = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
-	float JumpImpulse = 5.f;
+	float BrakeFriction = 5.f;
 
+	void FixVelocityDirection();
 public:	
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void SteerSkateboard(const FVector2D& InputMovement);
-	void Jump();
+	void SkateJump();
 	void PushSkateboard();
-	void StartBreaking();
-	void Break();
-	void StopBreaking();
+	void StartBraking();
+	void Brake();
+	void StopBraking();
 };

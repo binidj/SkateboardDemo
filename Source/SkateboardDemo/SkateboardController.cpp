@@ -39,9 +39,9 @@ void ASkateboardController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateboardController::Move);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASkateboardController::Jump);
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Triggered, this, &ASkateboardController::Push);
-		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Started, this, &ASkateboardController::StartBreaking);
-		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Triggered, this, &ASkateboardController::Break);
-		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Completed, this, &ASkateboardController::StopBreaking);
+		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Started, this, &ASkateboardController::StartBraking);
+		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Triggered, this, &ASkateboardController::Brake);
+		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Completed, this, &ASkateboardController::StopBraking);
 	}
 }
 
@@ -62,7 +62,7 @@ void ASkateboardController::Jump()
 {
 	if (SkateboardCharacter)
 	{
-		SkateboardCharacter->Jump();
+		SkateboardCharacter->SkateJump();
 	}
 }
 
@@ -74,26 +74,26 @@ void ASkateboardController::Push()
 	}
 }
 
-void ASkateboardController::StartBreaking()
+void ASkateboardController::StartBraking()
 {
 	if (SkateboardCharacter)
 	{
-		SkateboardCharacter->StartBreaking();
+		SkateboardCharacter->StartBraking();
 	}
 }
 
-void ASkateboardController::Break()
+void ASkateboardController::Brake()
 {
 	if (SkateboardCharacter)
 	{
-		SkateboardCharacter->Break();
+		SkateboardCharacter->Brake();
 	}
 }
 
-void ASkateboardController::StopBreaking()
+void ASkateboardController::StopBraking()
 {
 	if (SkateboardCharacter)
 	{
-		SkateboardCharacter->StopBreaking();
+		SkateboardCharacter->StopBraking();
 	}
 }

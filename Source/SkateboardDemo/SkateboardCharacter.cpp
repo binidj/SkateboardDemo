@@ -50,37 +50,82 @@ void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 {
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+
+	if (InputMovement.X == 0.f)
+	{
+		return;
+	}
+
 	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime);
+
+	PreviousTurnDirection = InputMovement.X;
+	
+	GetWorldTimerManager().SetTimerForNextTick(this, &ASkateboardCharacter::FixVelocityDirection);
 }
 
-void ASkateboardCharacter::Jump()
+void ASkateboardCharacter::SkateJump()
 {
-	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
-	{
-		MovementComponent->AddImpulse(GetActorForwardVector() * JumpImpulse);
-	}
+	Super::Jump();
 }
 
 void ASkateboardCharacter::PushSkateboard()
 {
 	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
 	{
-		MovementComponent->AddImpulse(GetActorForwardVector() * PushImpulse);
+		if (!MovementComponent->IsMovingOnGround())
+		{
+			return;
+		}
+
+		MovementComponent->AddInputVector(GetActorForwardVector() * PushAcceleration);
 	}
 }
 
-void ASkateboardCharacter::StartBreaking()
+void ASkateboardCharacter::StartBraking()
+{
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		PreviousBrakeFriction = MovementComponent->BrakingDecelerationWalking;
+		MovementComponent->BrakingDecelerationWalking = BrakeFriction;
+	}
+}
+
+void ASkateboardCharacter::Brake()
 {
 
 }
 
-void ASkateboardCharacter::Break()
+void ASkateboardCharacter::StopBraking()
 {
-
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		MovementComponent->BrakingDecelerationWalking = PreviousBrakeFriction;
+	}
 }
 
-void ASkateboardCharacter::StopBreaking()
+void ASkateboardCharacter::FixVelocityDirection()
 {
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		if (MovementComponent->Velocity.IsNearlyZero())
+		{
+			return;
+		}
+		
+		const FVector VelocityProjection = FVector::VectorPlaneProject(MovementComponent->Velocity, GetActorUpVector());
+		
+		if (VelocityProjection.IsNearlyZero())
+		{
+			return;
+		}
 
+		const FQuat Between = FQuat::FindBetweenVectors(GetActorForwardVector(), VelocityProjection);
+		
+		const float AngleToForward = Between.GetAngle();
+
+		const FVector InitialPos = GetActorLocation() + GetActorUpVector().GetClampedToSize(50.f, 50.f);
+
+		MovementComponent->Velocity = MovementComponent->Velocity.RotateAngleAxisRad(AngleToForward * PreviousTurnDirection, GetActorUpVector());
+	}
 }
 

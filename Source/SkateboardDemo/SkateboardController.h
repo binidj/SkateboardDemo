@@ -43,7 +43,7 @@ private:
 	void Move(const FInputActionValue& Value);
 	void Jump();
 	void Push();
-	void StartBreaking();
-	void Break();
-	void StopBreaking();
+	void StartBraking();
+	void Brake();
+	void StopBraking();
 };
