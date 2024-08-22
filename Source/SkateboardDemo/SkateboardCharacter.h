@@ -55,6 +55,9 @@ private:
 
 	FTimerHandle PushRechargeHandle;
 
+	bool bTriggerJumpAnimation = false;
+	bool bIsPlayingJumpAnimation = false;
+
 	void FixVelocityDirection();
 	void AlignSkate();
 	void AddSkateMomentum();
@@ -81,6 +84,12 @@ public:
 	bool GetIsPushing() const { return bIsPushing; };
 
 	UFUNCTION(BlueprintCallable)
+	bool GetTriggerJumpAnimation() const { return bTriggerJumpAnimation; };
+
+	UFUNCTION(BlueprintCallable)
+	void UnsetTriggerJumpAnimation() { bTriggerJumpAnimation = false; };
+
+	UFUNCTION(BlueprintCallable)
 	void AddPushForce() const;
 
 	UFUNCTION(BlueprintCallable)
@@ -88,4 +97,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void GetLegLocations(FVector& OutFrontLegLocation, FVector& OutBackLegLocation) const;
+
+	UFUNCTION(BlueprintCallable)
+	void TriggerJumpMovement();
+
+	UFUNCTION(BlueprintCallable)
+	void UnsetIsPlayingJumpAnimation() { bIsPlayingJumpAnimation = false; };
 };

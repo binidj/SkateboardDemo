@@ -76,12 +76,13 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 
 void ASkateboardCharacter::SkateJump()
 {
-	if (bIsPushing)
+	if (bIsPushing || IsSkateJumping())
 	{
 		return;
 	}
 
-	Super::Jump();
+	bTriggerJumpAnimation = true;
+	bIsPlayingJumpAnimation = true;
 }
 
 void ASkateboardCharacter::PushSkateboard()
@@ -148,6 +149,11 @@ void ASkateboardCharacter::GetLegLocations(FVector& OutFrontLegLocation, FVector
 	OutFrontLegLocation = SkateboardMesh->GetSocketLocation(TEXT("FrontLeg"));
 
 	OutBackLegLocation = SkateboardMesh->GetSocketLocation(TEXT("BackLeg"));
+}
+
+void ASkateboardCharacter::TriggerJumpMovement()
+{
+	Super::Jump();
 }
 
 void ASkateboardCharacter::FixVelocityDirection()
@@ -228,7 +234,7 @@ FVector ASkateboardCharacter::WheelTrace(const FVector& WheelLocation)
 
 bool ASkateboardCharacter::CanPush() const
 {
-	return !bIsPushing && bIsPushRecharged && !IsSkateJumping();
+	return !bIsPushing && bIsPushRecharged && !IsSkateJumping() && !bIsPlayingJumpAnimation;
 }
 
 void ASkateboardCharacter::RechargePush()
