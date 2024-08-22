@@ -40,7 +40,6 @@ void ASkateboardController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASkateboardController::Jump);
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Triggered, this, &ASkateboardController::Push);
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Started, this, &ASkateboardController::StartBraking);
-		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Triggered, this, &ASkateboardController::Brake);
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Completed, this, &ASkateboardController::StopBraking);
 	}
 }
@@ -79,14 +78,6 @@ void ASkateboardController::StartBraking()
 	if (SkateboardCharacter)
 	{
 		SkateboardCharacter->StartBraking();
-	}
-}
-
-void ASkateboardController::Brake()
-{
-	if (SkateboardCharacter)
-	{
-		SkateboardCharacter->Brake();
 	}
 }
 

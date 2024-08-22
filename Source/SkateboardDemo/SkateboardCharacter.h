@@ -71,7 +71,6 @@ public:
 	void SkateJump();
 	void PushSkateboard();
 	void StartBraking();
-	void Brake();
 	void StopBraking();
 
 private:

@@ -44,6 +44,5 @@ private:
 	void Jump();
 	void Push();
 	void StartBraking();
-	void Brake();
 	void StopBraking();
 };

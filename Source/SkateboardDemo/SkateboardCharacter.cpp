@@ -67,8 +67,6 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 
 	const float ReductionFactor = FMath::Clamp(1.f - MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed, 0.2f, 1.f);
 
-	UE_LOG(LogTemp, Warning, TEXT("ReductionFactor: %f"), ReductionFactor);
-
 	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * ReductionFactor);
 
 	PreviousTurnDirection = InputMovement.X;
@@ -105,11 +103,6 @@ void ASkateboardCharacter::StartBraking()
 		PreviousBrakeFriction = MovementComponent->BrakingDecelerationWalking;
 		MovementComponent->BrakingDecelerationWalking = BrakeFriction;
 	}
-}
-
-void ASkateboardCharacter::Brake()
-{
-
 }
 
 void ASkateboardCharacter::StopBraking()
