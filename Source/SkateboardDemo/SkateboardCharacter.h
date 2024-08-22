@@ -17,7 +17,7 @@ private:
 	class UCameraComponent* Camera = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* SkateboardMesh = nullptr;
+	USkeletalMeshComponent* SkateboardSkeletalMesh = nullptr;
 
 	UPROPERTY()
 	class UCharacterMovementComponent* MovementComponent = nullptr;
@@ -31,6 +31,9 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
 	float TurnSpeed = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float TurnScaleWhenJumping = 0.15f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
 	float PushAccelerationScale = 5.f;
@@ -54,6 +57,9 @@ private:
 	float PushRechargeSeconds = 2.5f;
 
 	FTimerHandle PushRechargeHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	UAnimationAsset* SkateboardFlip = nullptr;
 
 	bool bTriggerJumpAnimation = false;
 	bool bIsPlayingJumpAnimation = false;

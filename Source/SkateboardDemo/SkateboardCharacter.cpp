@@ -12,7 +12,7 @@ ASkateboardCharacter::ASkateboardCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 
-	SkateboardMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Skateboard"));
+	SkateboardSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skateboard Mesh"));
 
 	if (SpringArm)
 	{
@@ -24,9 +24,9 @@ ASkateboardCharacter::ASkateboardCharacter()
 		Camera->SetupAttachment(SpringArm);
 	}
 
-	if (SkateboardMesh)
+	if (SkateboardSkeletalMesh)
 	{
-		SkateboardMesh->SetupAttachment(GetRootComponent());
+		SkateboardSkeletalMesh->SetupAttachment(GetRootComponent());
 	}
 }
 
@@ -66,8 +66,9 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 	}
 
 	const float ReductionFactor = FMath::Clamp(1.f - MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed, 0.2f, 1.f);
+	const float JumpScale = IsSkateJumping() ? TurnScaleWhenJumping : 1.f;
 
-	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * ReductionFactor);
+	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * ReductionFactor * JumpScale);
 
 	PreviousTurnDirection = InputMovement.X;
 	
@@ -139,21 +140,26 @@ void ASkateboardCharacter::StopPushing()
 
 void ASkateboardCharacter::GetLegLocations(FVector& OutFrontLegLocation, FVector& OutBackLegLocation) const
 {
-	if (!SkateboardMesh)
+	if (!SkateboardSkeletalMesh)
 	{
 		OutFrontLegLocation = FVector::ZeroVector;
 		OutBackLegLocation = FVector::ZeroVector;
 		return;
 	}
 	
-	OutFrontLegLocation = SkateboardMesh->GetSocketLocation(TEXT("FrontLeg"));
+	OutFrontLegLocation = SkateboardSkeletalMesh->GetSocketLocation(TEXT("FrontLeg"));
 
-	OutBackLegLocation = SkateboardMesh->GetSocketLocation(TEXT("BackLeg"));
+	OutBackLegLocation = SkateboardSkeletalMesh->GetSocketLocation(TEXT("BackLeg"));
 }
 
 void ASkateboardCharacter::TriggerJumpMovement()
 {
 	Super::Jump();
+
+	if (SkateboardSkeletalMesh)
+	{
+		SkateboardSkeletalMesh->PlayAnimation(SkateboardFlip, false);
+	}
 }
 
 void ASkateboardCharacter::FixVelocityDirection()
@@ -184,15 +190,20 @@ void ASkateboardCharacter::FixVelocityDirection()
 
 void ASkateboardCharacter::AlignSkate()
 {
-	if (!SkateboardMesh)
+	if (!SkateboardSkeletalMesh)
 	{
 		return;
 	}
 
-	const FVector FrontWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("FrontWheel"));
-	const FVector BackWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("BackWheel"));
-	const FVector RightFrontWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("RightFrontWheel"));
-	const FVector LeftFrontWheelLocation = SkateboardMesh->GetSocketLocation(TEXT("LeftFrontWheel"));
+	if (bIsPlayingJumpAnimation)
+	{
+		return;
+	}
+
+	const FVector FrontWheelLocation = SkateboardSkeletalMesh->GetSocketLocation(TEXT("FrontWheel"));
+	const FVector BackWheelLocation = SkateboardSkeletalMesh->GetSocketLocation(TEXT("BackWheel"));
+	const FVector RightFrontWheelLocation = SkateboardSkeletalMesh->GetSocketLocation(TEXT("RightFrontWheel"));
+	const FVector LeftFrontWheelLocation = SkateboardSkeletalMesh->GetSocketLocation(TEXT("LeftFrontWheel"));
 
 	const FVector FrontHit = WheelTrace(FrontWheelLocation);
 	const FVector BackHit = WheelTrace(BackWheelLocation);
@@ -206,9 +217,9 @@ void ASkateboardCharacter::AlignSkate()
 
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 
-	SkateRotation = UKismetMathLibrary::RInterpTo(SkateboardMesh->GetComponentRotation(), SkateRotation, DeltaTime, SkateAlignSpeed);
+	SkateRotation = UKismetMathLibrary::RInterpTo(SkateboardSkeletalMesh->GetComponentRotation(), SkateRotation, DeltaTime, SkateAlignSpeed);
 
-	SkateboardMesh->SetWorldRotation(SkateRotation);
+	SkateboardSkeletalMesh->SetWorldRotation(SkateRotation);
 }
 
 FVector ASkateboardCharacter::WheelTrace(const FVector& WheelLocation)
@@ -244,7 +255,7 @@ void ASkateboardCharacter::RechargePush()
 
 void ASkateboardCharacter::AddSkateMomentum()
 {
-	if (!SkateboardMesh || !MovementComponent)
+	if (!SkateboardSkeletalMesh || !MovementComponent)
 	{
 		return;
 	}
@@ -254,7 +265,7 @@ void ASkateboardCharacter::AddSkateMomentum()
 		return;
 	}
 
-	const FVector SkateDirection = SkateboardMesh->GetForwardVector();
+	const FVector SkateDirection = SkateboardSkeletalMesh->GetForwardVector();
 
 	if (FMath::Abs(SkateDirection.Z) <= 0.1f)
 	{
