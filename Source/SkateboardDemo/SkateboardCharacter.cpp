@@ -60,7 +60,16 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 		return;
 	}
 
-	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime);
+	if (!MovementComponent)
+	{
+		return;
+	}
+
+	const float ReductionFactor = FMath::Clamp(1.f - MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed, 0.2f, 1.f);
+
+	UE_LOG(LogTemp, Warning, TEXT("ReductionFactor: %f"), ReductionFactor);
+
+	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * ReductionFactor);
 
 	PreviousTurnDirection = InputMovement.X;
 	
@@ -132,6 +141,20 @@ void ASkateboardCharacter::AddPushForce() const
 void ASkateboardCharacter::StopPushing()
 {
 	bIsPushing = false;
+}
+
+void ASkateboardCharacter::GetLegLocations(FVector& OutFrontLegLocation, FVector& OutBackLegLocation) const
+{
+	if (!SkateboardMesh)
+	{
+		OutFrontLegLocation = FVector::ZeroVector;
+		OutBackLegLocation = FVector::ZeroVector;
+		return;
+	}
+	
+	OutFrontLegLocation = SkateboardMesh->GetSocketLocation(TEXT("FrontLeg"));
+
+	OutBackLegLocation = SkateboardMesh->GetSocketLocation(TEXT("BackLeg"));
 }
 
 void ASkateboardCharacter::FixVelocityDirection()
@@ -233,6 +256,11 @@ void ASkateboardCharacter::AddSkateMomentum()
 	}
 
 	const FVector SkateDirection = SkateboardMesh->GetForwardVector();
+
+	if (FMath::Abs(SkateDirection.Z) <= 0.1f)
+	{
+		return;
+	}
 
 	// TODO: Improve this
 

@@ -86,4 +86,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void StopPushing();
+
+	UFUNCTION(BlueprintCallable)
+	void GetLegLocations(FVector& OutFrontLegLocation, FVector& OutBackLegLocation) const;
 };
