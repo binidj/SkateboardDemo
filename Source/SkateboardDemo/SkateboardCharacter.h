@@ -66,7 +66,6 @@ private:
 
 	void FixVelocityDirection();
 	void AlignSkate();
-	void AddSkateMomentum();
 	FVector WheelTrace(const FVector& WheelLocation);
 	bool CanPush() const;
 	void RechargePush();

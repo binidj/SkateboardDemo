@@ -42,7 +42,6 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AlignSkate();
-	// AddSkateMomentum();
 }
 
 void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -251,35 +250,4 @@ bool ASkateboardCharacter::CanPush() const
 void ASkateboardCharacter::RechargePush()
 {
 	bIsPushRecharged = true;
-}
-
-void ASkateboardCharacter::AddSkateMomentum()
-{
-	if (!SkateboardSkeletalMesh || !MovementComponent)
-	{
-		return;
-	}
-
-	if (!MovementComponent->IsMovingOnGround())
-	{
-		return;
-	}
-
-	const FVector SkateDirection = SkateboardSkeletalMesh->GetForwardVector();
-
-	if (FMath::Abs(SkateDirection.Z) <= 0.1f)
-	{
-		return;
-	}
-
-	// TODO: Improve this
-
-	if (SkateDirection.Z < 0.f)
-	{
-		MovementComponent->AddInputVector(SkateDirection * MomentumAccelerationScale);
-	}
-	else
-	{
-		MovementComponent->AddInputVector(SkateDirection * MomentumAccelerationScale * -1.f);
-	}
 }
