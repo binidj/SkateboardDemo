@@ -2,6 +2,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "SkateboardCharacter.h"
+#include "PlayerHUD.h"
+#include "ScoringGameMode.h"
+#include "Kismet/GameplayStatics.h"
 
 ASkateboardController::ASkateboardController()
 {
@@ -20,14 +23,11 @@ void ASkateboardController::BeginPlay()
 
 	SkateboardCharacter = Cast<ASkateboardCharacter>(GetCharacter());
 
-	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
-	{
-		UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-		if (InputSystem)
-		{
-			InputSystem->AddMappingContext(SkatingContext, 0);
-		}
-	}
+	GameMode = Cast<AScoringGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	SetupInputContext();
+
+	SetupPlayerHUD();
 }
 
 void ASkateboardController::SetupInputComponent()
@@ -87,4 +87,39 @@ void ASkateboardController::StopBraking()
 	{
 		SkateboardCharacter->StopBraking();
 	}
+}
+
+void ASkateboardController::SetupInputContext()
+{
+	if (ULocalPlayer* LocalPlayer = GetLocalPlayer())
+	{
+		UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+		if (InputSystem)
+		{
+			InputSystem->AddMappingContext(SkatingContext, 0);
+		}
+	}
+}
+
+void ASkateboardController::SetupPlayerHUD()
+{
+	if (!PlayerHUDClass)
+	{
+		return;
+	}
+
+	PlayerHUD = CreateWidget<UPlayerHUD>(this, PlayerHUDClass);
+
+	if (!PlayerHUD)
+	{
+		return;
+	}
+
+	if (GameMode)
+	{
+		GameMode->OnUpdateAvailableTime.BindUObject(PlayerHUD, &UPlayerHUD::UpdateTimeRemaining);
+		GameMode->OnUpdatePlayerPoints.BindUObject(PlayerHUD, &UPlayerHUD::UpdatePlayerPoints);
+	}
+
+	PlayerHUD->AddToPlayerScreen();
 }

@@ -5,6 +5,8 @@
 #include "SkateboardController.generated.h"
 
 struct FInputActionValue;
+class UInputAction;
+class UPlayerHUD;
 
 UCLASS()
 class SKATEBOARDDEMO_API ASkateboardController : public APlayerController
@@ -29,20 +31,31 @@ private:
 	class UInputMappingContext* SkatingContext = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction = nullptr;
+	UInputAction* MoveAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction = nullptr;
+	UInputAction* JumpAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* PushAction = nullptr;
+	UInputAction* PushAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* BreakAction = nullptr;
+	UInputAction* BreakAction = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = PlayerHUD, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UPlayerHUD> PlayerHUDClass = nullptr;
+
+	UPROPERTY()
+	UPlayerHUD* PlayerHUD = nullptr;
+
+	UPROPERTY()
+	class AScoringGameMode* GameMode = nullptr;
 
 	void Move(const FInputActionValue& Value);
 	void Jump();
 	void Push();
 	void StartBraking();
 	void StopBraking();
+	void SetupInputContext();
+	void SetupPlayerHUD();
 };

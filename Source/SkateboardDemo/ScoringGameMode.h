@@ -4,6 +4,9 @@
 #include "GameFramework/GameModeBase.h"
 #include "ScoringGameMode.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnUpdateAvailableTime, int32)
+DECLARE_DELEGATE_OneParam(FOnUpdatePlayerPoints, int32)
+
 UCLASS()
 class SKATEBOARDDEMO_API AScoringGameMode : public AGameModeBase
 {
@@ -13,6 +16,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	FOnUpdateAvailableTime OnUpdateAvailableTime;
+	FOnUpdatePlayerPoints OnUpdatePlayerPoints;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PointsSystem, meta = (AllowPrivateAccess = "true"))
@@ -28,4 +33,6 @@ private:
 	void UpdateAvailableTime();
 
 	void BindScoreTorusOnLevel();
+
+	void UpdateUIOnBeginPlay();
 };
