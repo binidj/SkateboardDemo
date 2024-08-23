@@ -36,9 +36,8 @@ private:
 	float TurnScaleWhenJumping = 0.15f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
-	float PushAccelerationScale = 5.f;
+	float ImpulseForce = 5000.f;
 
-	float PreviousTurnDirection = 0.f;
 	float PreviousBrakeFriction = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
@@ -55,6 +54,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
 	float PushRechargeSeconds = 2.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float MinTurnSpeedReductionScale = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float MinPushImpulseReductionScale = 0.5f;
 
 	FTimerHandle PushRechargeHandle;
 

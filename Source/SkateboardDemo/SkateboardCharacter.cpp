@@ -42,6 +42,7 @@ void ASkateboardCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AlignSkate();
+	FixVelocityDirection();
 }
 
 void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -64,14 +65,12 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 		return;
 	}
 
-	const float ReductionFactor = FMath::Clamp(1.f - MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed, 0.2f, 1.f);
+	float TurnSpeedReductionFactor = 1.f - MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed;
+	TurnSpeedReductionFactor = FMath::Clamp(TurnSpeedReductionFactor, MinTurnSpeedReductionScale, 1.f);
+
 	const float JumpScale = IsSkateJumping() ? TurnScaleWhenJumping : 1.f;
 
-	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * ReductionFactor * JumpScale);
-
-	PreviousTurnDirection = InputMovement.X;
-	
-	GetWorldTimerManager().SetTimerForNextTick(this, &ASkateboardCharacter::FixVelocityDirection);
+	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * TurnSpeedReductionFactor * JumpScale);
 }
 
 void ASkateboardCharacter::SkateJump()
@@ -121,14 +120,19 @@ bool ASkateboardCharacter::IsSkateJumping() const
 
 void ASkateboardCharacter::AddPushForce() const
 {
-	if (MovementComponent)
+	if (!MovementComponent || !MovementComponent->IsMovingOnGround())
 	{
-		if (!MovementComponent->IsMovingOnGround())
-		{
-			return;
-		}
+		return;
+	}
 
-		MovementComponent->AddInputVector(GetActorForwardVector() * PushAccelerationScale);
+	float PushImpulseReductionScale = 1.f - MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed;
+	PushImpulseReductionScale = FMath::Clamp(PushImpulseReductionScale, MinPushImpulseReductionScale, 1.f);
+
+	const FVector ImpulseToAdd = GetActorForwardVector() * (ImpulseForce * PushImpulseReductionScale / MovementComponent->Mass);
+
+	if (ImpulseToAdd.Length() + MovementComponent->Velocity.Length() < MovementComponent->MaxWalkSpeed)
+	{
+		MovementComponent->AddImpulse(GetActorForwardVector() * ImpulseForce * PushImpulseReductionScale);
 	}
 }
 
@@ -163,28 +167,40 @@ void ASkateboardCharacter::TriggerJumpMovement()
 
 void ASkateboardCharacter::FixVelocityDirection()
 {
-	if (MovementComponent)
+	if (!MovementComponent)
 	{
-		if (MovementComponent->Velocity.IsNearlyZero())
-		{
-			return;
-		}
-		
-		const FVector VelocityProjection = FVector::VectorPlaneProject(MovementComponent->Velocity, GetActorUpVector());
-		
-		if (VelocityProjection.IsNearlyZero())
-		{
-			return;
-		}
-
-		const FQuat Between = FQuat::FindBetweenVectors(GetActorForwardVector(), VelocityProjection);
-		
-		const float AngleToForward = Between.GetAngle();
-
-		const FVector InitialPos = GetActorLocation() + GetActorUpVector().GetClampedToSize(50.f, 50.f);
-
-		MovementComponent->Velocity = MovementComponent->Velocity.RotateAngleAxisRad(AngleToForward * PreviousTurnDirection, GetActorUpVector());
+		return;
 	}
+
+	if (MovementComponent->Velocity.IsNearlyZero())
+	{
+		return;
+	}
+
+	FVector VelocityProjection = FVector::VectorPlaneProject(MovementComponent->Velocity, FVector::UpVector);
+
+	if (VelocityProjection.IsNearlyZero())
+	{
+		return;
+	}
+
+	VelocityProjection = GetActorForwardVector() * VelocityProjection.Length();
+	MovementComponent->Velocity.X = VelocityProjection.X;
+	MovementComponent->Velocity.Y = VelocityProjection.Y;
+	//const FVector VelocityProjection = FVector::VectorPlaneProject(MovementComponent->Velocity, GetActorUpVector());
+
+	//if (VelocityProjection.IsNearlyZero())
+	//{
+	//	return;
+	//}
+
+	//const FQuat Between = FQuat::FindBetweenVectors(GetActorForwardVector(), VelocityProjection);
+
+	//const float AngleToForward = Between.GetAngle();
+
+	//const FVector InitialPos = GetActorLocation() + GetActorUpVector().GetClampedToSize(50.f, 50.f);
+
+	//MovementComponent->Velocity = MovementComponent->Velocity.RotateAngleAxisRad(AngleToForward * PreviousTurnDirection, GetActorUpVector());
 }
 
 void ASkateboardCharacter::AlignSkate()
