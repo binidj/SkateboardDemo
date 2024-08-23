@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "ScoreTorus.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnPlayerScorePoints, int32)
+
 UCLASS()
 class SKATEBOARDDEMO_API AScoreTorus : public AActor
 {
@@ -25,4 +27,18 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
+	FOnPlayerScorePoints OnPlayerScorePoints;
+
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PointsSystem, meta = (AllowPrivateAccess = "true"))
+	int32 PointsReward = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PointsSystem, meta = (AllowPrivateAccess = "true"))
+	float AcceptablePlayerInAngle = 30.f;
+
+	UFUNCTION()
+	void OnEnterCollisionBox(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	bool CanScorePoints(AActor* OtherActor) const;
 };
