@@ -45,6 +45,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ResetLevelAction = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ExitGameAction = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = PlayerHUD, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UPlayerHUD> PlayerHUDClass = nullptr;
 
@@ -63,4 +66,5 @@ private:
 	void SetupInputContext();
 	void SetupPlayerHUD();
 	void ResetLevel();
+	void ExitGame();
 };

@@ -5,6 +5,7 @@
 #include "PlayerHUD.h"
 #include "ScoringGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ASkateboardController::ASkateboardController()
 {
@@ -43,6 +44,7 @@ void ASkateboardController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Triggered, this, &ASkateboardController::SlowDownOnAir);
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Completed, this, &ASkateboardController::StopBraking);
 		EnhancedInputComponent->BindAction(ResetLevelAction, ETriggerEvent::Triggered, this, &ASkateboardController::ResetLevel);
+		EnhancedInputComponent->BindAction(ExitGameAction, ETriggerEvent::Triggered, this, &ASkateboardController::ExitGame);
 	}
 }
 
@@ -140,4 +142,9 @@ void ASkateboardController::SetupPlayerHUD()
 void ASkateboardController::ResetLevel()
 {
 	UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), false);
+}
+
+void ASkateboardController::ExitGame()
+{
+	UKismetSystemLibrary::QuitGame(GetWorld(), this, EQuitPreference::Quit, false);
 }
