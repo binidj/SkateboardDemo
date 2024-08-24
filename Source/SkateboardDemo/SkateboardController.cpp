@@ -36,7 +36,7 @@ void ASkateboardController::SetupInputComponent()
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateboardController::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASkateboardController::SteerSkateboard);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASkateboardController::Jump);
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Triggered, this, &ASkateboardController::Push);
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Started, this, &ASkateboardController::StartBraking);
@@ -44,17 +44,15 @@ void ASkateboardController::SetupInputComponent()
 	}
 }
 
-void ASkateboardController::Move(const FInputActionValue& Value)
+void ASkateboardController::SteerSkateboard(const FInputActionValue& Value)
 {
 	if (!SkateboardCharacter)
 	{
 		return;
 	}
 
-	FVector2D InputMovement = Value.Get<FVector2D>();
-	InputMovement.Y = FMath::Max(InputMovement.Y, 0.f);
-	InputMovement.Normalize();
-	SkateboardCharacter->SteerSkateboard(InputMovement);
+	const float InputDirection = Value.Get<float>();
+	SkateboardCharacter->SteerSkateboard(InputDirection);
 }
 
 void ASkateboardController::Jump()
@@ -65,8 +63,13 @@ void ASkateboardController::Jump()
 	}
 }
 
-void ASkateboardController::Push()
+void ASkateboardController::Push(const FInputActionValue& Value)
 {
+	if (Value.Get<float>() < 0.f)
+	{
+		return;
+	}
+
 	if (SkateboardCharacter)
 	{
 		SkateboardCharacter->PushSkateboard();

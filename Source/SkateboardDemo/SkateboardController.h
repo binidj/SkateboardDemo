@@ -51,9 +51,9 @@ private:
 	UPROPERTY()
 	class AScoringGameMode* GameMode = nullptr;
 
-	void Move(const FInputActionValue& Value);
+	void SteerSkateboard(const FInputActionValue& Value);
 	void Jump();
-	void Push();
+	void Push(const FInputActionValue& Value);
 	void StartBraking();
 	void StopBraking();
 	void SetupInputContext();

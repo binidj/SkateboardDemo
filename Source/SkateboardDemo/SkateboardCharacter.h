@@ -80,7 +80,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void SteerSkateboard(const FVector2D& InputMovement);
+	void SteerSkateboard(float InputDirection);
 	void SkateJump();
 	void PushSkateboard();
 	void StartBraking();

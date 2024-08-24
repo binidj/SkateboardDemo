@@ -51,11 +51,11 @@ void ASkateboardCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 }
 
-void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
+void ASkateboardCharacter::SteerSkateboard(float InputDirection)
 {
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 
-	if (InputMovement.X == 0.f)
+	if (FMath::IsNearlyZero(InputDirection))
 	{
 		return;
 	}
@@ -70,7 +70,7 @@ void ASkateboardCharacter::SteerSkateboard(const FVector2D& InputMovement)
 
 	const float JumpScale = IsSkateJumping() ? TurnScaleWhenJumping : 1.f;
 
-	AddControllerYawInput(InputMovement.X * TurnSpeed * DeltaTime * TurnSpeedReductionFactor * JumpScale);
+	AddControllerYawInput(InputDirection * TurnSpeed * DeltaTime * TurnSpeedReductionFactor * JumpScale);
 }
 
 void ASkateboardCharacter::SkateJump()
