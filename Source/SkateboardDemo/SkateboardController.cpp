@@ -41,6 +41,7 @@ void ASkateboardController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(PushAction, ETriggerEvent::Triggered, this, &ASkateboardController::Push);
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Started, this, &ASkateboardController::StartBraking);
 		EnhancedInputComponent->BindAction(BreakAction, ETriggerEvent::Completed, this, &ASkateboardController::StopBraking);
+		EnhancedInputComponent->BindAction(ResetLevelAction, ETriggerEvent::Triggered, this, &ASkateboardController::ResetLevel);
 	}
 }
 
@@ -125,4 +126,9 @@ void ASkateboardController::SetupPlayerHUD()
 	}
 
 	PlayerHUD->AddToPlayerScreen();
+}
+
+void ASkateboardController::ResetLevel()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName(*GetWorld()->GetName()), false);
 }

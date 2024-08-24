@@ -75,7 +75,7 @@ void ASkateboardCharacter::SteerSkateboard(float InputDirection)
 
 void ASkateboardCharacter::SkateJump()
 {
-	if (bIsPushing || IsSkateJumping())
+	if (IsSkateJumping())
 	{
 		return;
 	}
@@ -187,20 +187,6 @@ void ASkateboardCharacter::FixVelocityDirection()
 	VelocityProjection = GetActorForwardVector() * VelocityProjection.Length();
 	MovementComponent->Velocity.X = VelocityProjection.X;
 	MovementComponent->Velocity.Y = VelocityProjection.Y;
-	//const FVector VelocityProjection = FVector::VectorPlaneProject(MovementComponent->Velocity, GetActorUpVector());
-
-	//if (VelocityProjection.IsNearlyZero())
-	//{
-	//	return;
-	//}
-
-	//const FQuat Between = FQuat::FindBetweenVectors(GetActorForwardVector(), VelocityProjection);
-
-	//const float AngleToForward = Between.GetAngle();
-
-	//const FVector InitialPos = GetActorLocation() + GetActorUpVector().GetClampedToSize(50.f, 50.f);
-
-	//MovementComponent->Velocity = MovementComponent->Velocity.RotateAngleAxisRad(AngleToForward * PreviousTurnDirection, GetActorUpVector());
 }
 
 void ASkateboardCharacter::AlignSkate()

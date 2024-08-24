@@ -42,6 +42,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
 	UInputAction* BreakAction = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DefaultInput, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ResetLevelAction = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = PlayerHUD, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UPlayerHUD> PlayerHUDClass = nullptr;
 
@@ -58,4 +61,5 @@ private:
 	void StopBraking();
 	void SetupInputContext();
 	void SetupPlayerHUD();
+	void ResetLevel();
 };
