@@ -58,6 +58,7 @@ private:
 	void Jump();
 	void Push(const FInputActionValue& Value);
 	void StartBraking();
+	void SlowDownOnAir();
 	void StopBraking();
 	void SetupInputContext();
 	void SetupPlayerHUD();

@@ -105,6 +105,26 @@ void ASkateboardCharacter::StartBraking()
 	}
 }
 
+void ASkateboardCharacter::SlowDownOnAir()
+{
+	if (!IsSkateJumping())
+	{
+		return;
+	}
+
+	FVector VelocityProjection = FVector::VectorPlaneProject(MovementComponent->Velocity, FVector::UpVector);
+
+	if (VelocityProjection.IsNearlyZero())
+	{
+		return;
+	}
+
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	VelocityProjection = UKismetMathLibrary::VInterpTo(VelocityProjection, FVector::ZeroVector, DeltaTime, SlowDownSpeedOnAir);
+	MovementComponent->Velocity.X = VelocityProjection.X;
+	MovementComponent->Velocity.Y = VelocityProjection.Y;
+}
+
 void ASkateboardCharacter::StopBraking()
 {
 	if (MovementComponent)

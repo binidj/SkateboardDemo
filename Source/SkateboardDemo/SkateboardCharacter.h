@@ -61,6 +61,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
 	float MinPushImpulseReductionScale = 0.5f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float SlowDownSpeedOnAir = 15.f;
+
 	FTimerHandle PushRechargeHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
@@ -84,6 +87,7 @@ public:
 	void SkateJump();
 	void PushSkateboard();
 	void StartBraking();
+	void SlowDownOnAir();
 	void StopBraking();
 
 private:
