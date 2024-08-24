@@ -64,6 +64,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
 	float SlowDownSpeedOnAir = 15.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float DefaultZVelocity = 500.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))
+	float JumpSpeedModifierScale = 1.f;
+
 	FTimerHandle PushRechargeHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = MovementSettings, meta = (AllowPrivateAccess = "true"))

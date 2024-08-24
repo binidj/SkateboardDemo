@@ -177,6 +177,10 @@ void ASkateboardCharacter::GetLegLocations(FVector& OutFrontLegLocation, FVector
 
 void ASkateboardCharacter::TriggerJumpMovement()
 {
+	float JumpSpeedModifier = 1.f + MovementComponent->Velocity.Length() / MovementComponent->MaxWalkSpeed;
+	JumpSpeedModifier *= JumpSpeedModifierScale;
+	MovementComponent->JumpZVelocity = DefaultZVelocity * JumpSpeedModifier;
+
 	Super::Jump();
 
 	if (SkateboardSkeletalMesh)
