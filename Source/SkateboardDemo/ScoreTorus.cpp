@@ -1,6 +1,8 @@
 #include "ScoreTorus.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 AScoreTorus::AScoreTorus()
 {
@@ -87,6 +89,8 @@ bool AScoreTorus::CanScorePoints(AActor* OtherActor) const
 	{
 		return false;
 	}
+
+	UGameplayStatics::PlaySound2D(GetWorld(), GrabSFX);
 
 	return true;
 }
